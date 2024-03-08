@@ -1,7 +1,31 @@
-import { categories, coffeeData } from "../../data";
+import { useState } from "react";
+import { coffeeData } from "../../data";
 import Coffee from "./Coffee";
+import { useEffect } from "react";
+
+const categories = new Set(coffeeData.map((coffee) => coffee.category));
+const allCategories = ["all", ...categories];
 
 const Menu = () => {
+  const [menu, setMenu] = useState(coffeeData);
+  const [filter, setFilter] = useState("");
+
+  useEffect(() => {
+    const filterMenu = () => {
+      let filteredMenu = coffeeData;
+
+      if (filter) {
+        filteredMenu =
+          filter === "all"
+            ? filteredMenu
+            : filteredMenu.filter((item) => item.category === filter);
+      }
+
+      setMenu(filteredMenu);
+    };
+    filterMenu();
+  }, [filter]);
+
   return (
     <main className="menu">
       <h2 className="text-center">Our menu</h2>
@@ -15,9 +39,15 @@ const Menu = () => {
           </p>
 
           <div className="btn-container">
-            {categories.map((item, i) => {
+            {allCategories.map((item, i) => {
               return (
-                <button key={i} className="button">
+                <button
+                  key={i}
+                  className={`button ${
+                    item === filter ? "bg-brownish text-white" : ""
+                  }`}
+                  onClick={() => setFilter(item)}
+                >
                   {item}
                 </button>
               );
@@ -33,7 +63,7 @@ const Menu = () => {
           </div>
 
           <ul className="coffees">
-            {coffeeData.map((coffee) => {
+            {menu.map((coffee) => {
               return <Coffee key={coffee.name} coffee={coffee} />;
             })}
           </ul>
